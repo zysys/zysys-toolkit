@@ -84,7 +84,7 @@ char** get_rfiles_by_extension(char* extension, int* count) {
 	return file_list;
 }
 
-int filetrack(char*** file_arr, char** file, int* i)
+int filetrack(char*** file_arr, char** file, unsigned int* i)
 {
 	char* file_to_append = *file;
 	char** a = *file_arr;
@@ -146,11 +146,10 @@ void* progress_bar_animate_thread(void* thread_arg)
 			pthread_exit(NULL);
 		}
 	}
-
+	return thread_arg;
 } 
 s_param* progress_bar_animate(char* progress_bar_message) {
 	int rc;
-	long t;
 	static pthread_mutex_t end_animation = PTHREAD_MUTEX_INITIALIZER;
 	s_param* thread = malloc(sizeof(s_param));
 
@@ -175,7 +174,7 @@ void end_progress_bar_animation(s_param* thread)
 
 char* replace_wrapper_char(char character, int pos_one, int pos_two, char* string)
 {
-	int one = pos_one, two = pos_two, i = 0;
+	int one = pos_one, two = pos_two;
 	if (pos_one < 0)
 		one = strlen(string) + pos_one;
 	if (pos_two < 0)
@@ -204,7 +203,7 @@ char* escape_internal_chars(int pos_one, int pos_two, char* string)
 
 	char* str = malloc(strlen(string) * 2 + 1);
 	for (i = 0; i < strlen(string); i++) {
-		if (i == one | i == two)
+		if (i == one || i == two)
 			str[j] = string[i];
 		else
 			switch(string[i]) {

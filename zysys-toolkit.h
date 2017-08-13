@@ -56,7 +56,7 @@ void listdir(const char* name, char* extension, unsigned int* count, char*** fil
  * 		-i
  */
 
-int filetrack(char*** file_arr, char** file, int* i);
+int filetrack(char*** file_arr, char** file, unsigned int* i);
 
 
 /* progress_bar_animate_thread: mechanics fo progress_bar_animate

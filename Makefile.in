@@ -1,6 +1,3 @@
-PREFIX = /usr/local
-dbg = -g
-CFLAGS = -O3 $(dbg)
 
 
 all: libzysys-toolkit.so
