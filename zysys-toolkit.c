@@ -250,6 +250,25 @@ char* escape_chars(char* string)
 	return newstr;
 }
 
+char* process_placeholder(char* cmd, char* escaped)
+{
+	char* substr = malloc((strstr(cmd, "%s")-cmd) + 2);
+	char* exec_cmd_dirty = malloc(strlen(cmd) + 1 + strlen(escaped) + 1 + strlen(" >/dev/null") + 2);
+
+	memcpy(substr, cmd, strstr(cmd, "%s")-cmd);
+	substr[strstr(cmd, "%s")-cmd] = '\0';
+	strcpy(exec_cmd_dirty, substr);
+
+	strcat(exec_cmd_dirty, escaped);
+	strcat(exec_cmd_dirty, strstr(cmd, "%s")+2);
+	TRY_FREE(substr);
+	//TRY_FREE(escaped);
+
+	char* exec_cmd = clean_string(exec_cmd_dirty);
+	free(exec_cmd_dirty);
+	return exec_cmd;
+}
+
 void execute_command_on_file_list(unsigned int count, char* cmd, unsigned int total, char** file_list)
 {
 	if (sigint_caught)
@@ -261,21 +280,21 @@ void execute_command_on_file_list(unsigned int count, char* cmd, unsigned int to
 		return;
 
 	char* escaped = escape_internal_chars(0,-1,file_list[count]);
-	char* substr = malloc((strstr(cmd, "%s")-cmd) + 1);
-	char* exec_cmd_dirty = malloc(strlen(cmd) + 1 + strlen(escaped) + 1 + strlen(" >/dev/null") + 1);
-
-	memcpy(substr, cmd, strstr(cmd, "%s")-cmd);
-	substr[strstr(cmd, "%s")-cmd] = '\0';
-	strcpy(exec_cmd_dirty, substr);
-
-	strcat(exec_cmd_dirty, escaped);
-	strcat(exec_cmd_dirty, strstr(cmd, "%s")+2);
-	strcat(exec_cmd_dirty, " >/dev/null\0");
-	TRY_FREE(substr);
+	int iter = 1;
+	int init_size = strlen(cmd) + (strlen(escaped) * iter++) + strlen(" >/dev/null") + 2;
+	char* exec_cmd_dirty = malloc(init_size);
+	strcpy(exec_cmd_dirty, cmd);
+	while (strstr(exec_cmd_dirty, "%s") != NULL) {
+		char* escaped_string = process_placeholder(exec_cmd_dirty, escaped);
+		exec_cmd_dirty = realloc(exec_cmd_dirty, strlen(cmd) + (strlen(escaped) * iter++) + strlen(" >/dev/null") + 2);
+		strcpy(exec_cmd_dirty, escaped_string);
+		TRY_FREE(escaped_string);
+	}
 	TRY_FREE(escaped);
 
+	strcat(exec_cmd_dirty, " >/dev/null\0");
 	char* exec_cmd = clean_string(exec_cmd_dirty);
-	free(exec_cmd_dirty);
+	TRY_FREE(exec_cmd_dirty);
 
 	if (!sigint_caught && system(exec_cmd) == SIGINT)
 		set_sigint_caught(SIGINT);

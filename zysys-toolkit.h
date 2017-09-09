@@ -168,6 +168,18 @@ char* replace_wrapper_char(char character, int pos_one, int pos_two, char* strin
  */
 char* escape_chars(char* string);
 
+/* process_placeholder: convers %s into arg2
+ * 	INTERNAL FUNCTION
+ * 	inputs:
+ * 		-cmd = the command that has placeholders
+ * 		-escaped = the escaped replacment
+ * 	outputs:
+ * 		-cmd with the first placeholder replaced with escaped
+ * 	inline edits:
+ * 		-NONE
+ */
+char* process_placeholder(char* cmd, char* escaped);
+
 /* execute_command_on_file_list: runs a command on a list of file_names
  * 	EXTERNAL FUNCTION
  * 	inputs:
