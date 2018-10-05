@@ -6,7 +6,7 @@ CFLAGS = -O3 $(dbg)
 all: libzysys-toolkit.so
 
 zysys-toolkit.o: zysys-toolkit.c zysys-toolkit.h
-	gcc -o zysys-toolkit.o -c zysys-toolkit.c $(CFLAGS)
+	gcc -fPIC -pthread -o zysys-toolkit.o -c zysys-toolkit.c $(CFLAGS)
 
 libzysys-toolkit.so: zysys-toolkit.o #let's link library files into a static library
 	gcc -shared -o libzysys-toolkit.so zysys-toolkit.o -lm
